@@ -1,4 +1,4 @@
-FROM node:6.10.0
+FROM node:8-alpine
 
 MAINTAINER Eetu Tuomala <eetu.tuomala@gmail.com>
 
