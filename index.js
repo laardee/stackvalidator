@@ -20,18 +20,22 @@ const cloudFormation = new AWS.CloudFormation(config);
 const readTemplates = (rootPath) =>
   new Promise((resolve, reject) => {
     const templates = [];
+    let counter = 0;
     klaw(rootPath)
       .on('data', item => {
-        const ext = path.extname(item.path)
+        const ext = path.extname(item.path);
         if (['.yml', '.json'].includes(ext)) {
           const contents = fs.readFileSync(item.path).toString();
-          if ((/AWSTemplateFormatVersion/g).test(contents)){
+          counter = counter + 1;
+          if (counter > 1000) {
+            return reject(new Error(`Lots of json and yml files found, is '${rootPath}/*' really the path you want to validate?`))
+          } else if ((/AWSTemplateFormatVersion/g).test(contents)){
             templates.push(item);
           }
         }
       })
-      .on('error', (err, item) =>
-        reject(new Error({ error, item })))
+      .on('error', (error, item) =>
+        reject(error))
       .on('end', () =>
         resolve({ templates }));
   });
@@ -62,14 +66,20 @@ async function validateTemplate(templatePath, delay) {
 }
 
 async function validateTemplates(rootPath, delay) {
-  const { templates } = await readTemplates(rootPath);
-  const templatePaths = templates.map(template => template.path);
-  console.log(chalk.yellow(`Found ${templatePaths.length} template${templatePaths.length !== 1 ? 's' : ''}\r\n${rootPath}`));
-  console.log(chalk.yellow(templatePaths.join(',\n').replace(new RegExp(rootPath, 'g'), ' └ ')));
-  console.log(chalk.yellow('---------------------------'));
-  templatePaths.forEach(template =>
-    queue.add(() =>
-      validateTemplate(template, delay)));
+  try {
+    const { templates } = await readTemplates(rootPath);
+    const templatePaths = templates.map(template => template.path);
+    console.log(chalk.yellow(`Found ${templatePaths.length} template${templatePaths.length !== 1 ? 's' : ''}\r\n${rootPath}`));
+    console.log(chalk.yellow(templatePaths.join(',\n').replace(new RegExp(rootPath, 'g'), ' └ ')));
+    console.log(chalk.yellow('---------------------------'));
+    templatePaths.forEach(template =>
+      queue.add(() =>
+        validateTemplate(template, delay)));
+  } catch (exception) {
+    console.log(chalk.red(`[ERROR] ${exception.message}`));
+    process.exit(1);
+  }
+
 }
 
 module.exports = {

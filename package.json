@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=8.0"
   },
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Eetu Tuomala",
   "license": "MIT",
   "keywords": [
