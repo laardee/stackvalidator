@@ -1,0 +1,29 @@
+{
+  "name": "stackvalidator",
+  "version": "0.1.0",
+  "author": "Eetu Tuomala",
+  "license": "MIT",
+  "keywords": [
+    "cloudformation",
+    "aws"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/laardee/stackvalidator.git"
+  },
+  "bin": {
+    "stackvalidator": "./stackvalidator.js"
+  },
+  "scripts": {
+    "stackvalidator": "./stackvalidator.js"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.158.0",
+    "chalk": "^2.3.0",
+    "fs-extra": "^4.0.2",
+    "klaw": "^2.1.1",
+    "promise-queue": "^2.2.3",
+    "yargs": "^10.0.3"
+  },
+  "main": "index.js"
+}
