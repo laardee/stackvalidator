@@ -1,9 +1,9 @@
 {
   "name": "stackvalidator",
   "engines": {
-    "node": ">=8.0"
+    "node": ">=4.0"
   },
-  "version": "0.1.3",
+  "version": "0.1.5",
   "author": "Eetu Tuomala",
   "license": "MIT",
   "keywords": [
@@ -15,10 +15,12 @@
     "url": "https://github.com/laardee/stackvalidator.git"
   },
   "bin": {
-    "stackvalidator": "./stackvalidator.js"
+    "stackvalidator": "bin/stackvalidator.js"
   },
   "scripts": {
-    "stackvalidator": "./stackvalidator.js"
+    "build": "babel src --out-dir bin",
+    "prepare": "npm run build",
+    "stackvalidator": "bin/stackvalidator.js"
   },
   "dependencies": {
     "aws-sdk": "^2.158.0",
@@ -28,5 +30,11 @@
     "promise-queue": "^2.2.3",
     "yargs": "^10.0.3"
   },
-  "main": "index.js"
+  "main": "bin/stackvalidator.js",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1"
+  }
 }

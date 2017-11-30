@@ -12,9 +12,9 @@ validates all templates recursively from current working directory
 stackvalidator
 ```
 
---path -> path to the files you want to validate
+`--path` -> path to the files you want to validate
 
---delay -> increase delau if rate exceeds
+`--delay` -> increase delay if the rate exceeds
 
 ```bash
 stackvalidator --path path-to-files --delay 500
