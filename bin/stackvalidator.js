@@ -3,6 +3,8 @@
 
 'use strict';
 
+require('babel-polyfill');
+
 var _require = require('./index'),
     validateTemplate = _require.validateTemplate,
     validateTemplates = _require.validateTemplates;
