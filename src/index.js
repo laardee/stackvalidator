@@ -17,7 +17,7 @@ const config = {
 
 const cloudFormation = new AWS.CloudFormation(config);
 
-const readTemplates = (rootPath) =>
+const getTemplates = (rootPath) =>
   new Promise((resolve, reject) => {
     const templates = [];
     let counter = 0;
@@ -67,7 +67,7 @@ async function validateTemplate(templatePath, delay) {
 
 async function validateTemplates(rootPath, delay) {
   try {
-    const { templates } = await readTemplates(rootPath);
+    const { templates } = await getTemplates(rootPath);
     const templatePaths = templates.map(template => template.path);
     console.log(chalk.yellow(`Found ${templatePaths.length} template${templatePaths.length !== 1 ? 's' : ''}\r\n${rootPath}`));
     console.log(chalk.yellow(templatePaths.join(',\n').replace(new RegExp(rootPath, 'g'), ' └ ')));
