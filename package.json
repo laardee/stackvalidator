@@ -1,6 +1,9 @@
 {
   "name": "stackvalidator",
-  "version": "0.1.0",
+  "engines": {
+    "node": ">=8.0"
+  },
+  "version": "0.1.1",
   "author": "Eetu Tuomala",
   "license": "MIT",
   "keywords": [
