@@ -15,7 +15,7 @@ var chalk = require('chalk');
 var args = require('yargs').argv;
 
 console.log(chalk.yellow('***** AWS CloudFormation Stack Validator *****'));
-console.log(chalk.yellow('usage: stackvalidator path-to-stacks offset-in-ms'));
+console.log(chalk.yellow('usage: stackvalidator --path=path-to-stacks --delay=offset-in-ms'));
 
 var normalizedPath = path.normalize(args.path || '.');
 var delay = args.delay || 100;
