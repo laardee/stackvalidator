@@ -5,14 +5,14 @@ var _regenerator = require('babel-runtime/regenerator');
 var _regenerator2 = _interopRequireDefault(_regenerator);
 
 var validateTemplate = function () {
-  var _ref = _asyncToGenerator( /*#__PURE__*/_regenerator2.default.mark(function _callee(templatePath, delay) {
+  var _ref = _asyncToGenerator( /*#__PURE__*/_regenerator2.default.mark(function _callee(templatePath, delay, count, total) {
     return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
             _context.prev = 0;
             _context.next = 3;
-            return validate(templatePath, delay);
+            return validate(templatePath, delay, count, total);
 
           case 3:
             _context.next = 8;
@@ -32,7 +32,7 @@ var validateTemplate = function () {
     }, _callee, this, [[0, 5]]);
   }));
 
-  return function validateTemplate(_x, _x2) {
+  return function validateTemplate(_x3, _x4, _x5, _x6) {
     return _ref.apply(this, arguments);
   };
 }();
@@ -46,22 +46,23 @@ var validateTemplates = function () {
         switch (_context2.prev = _context2.next) {
           case 0:
             _context2.prev = 0;
-            _context2.next = 3;
+
+            console.log(chalk.yellow('Scanning templates...\r\n' + rootPath));
+            _context2.next = 4;
             return getTemplates(rootPath);
 
-          case 3:
+          case 4:
             _ref3 = _context2.sent;
             templates = _ref3.templates;
             templatePaths = templates.map(function (template) {
               return template.path;
             });
 
-            console.log(chalk.yellow('Found ' + templatePaths.length + ' template' + (templatePaths.length !== 1 ? 's' : '') + '\r\n' + rootPath));
-            console.log(chalk.yellow(templatePaths.join(',\n').replace(new RegExp(rootPath, 'g'), ' └ ')));
+            console.log(chalk.yellow('Found ' + templatePaths.length + ' template' + (templatePaths.length !== 1 ? 's' : '')));
             console.log(chalk.yellow('---------------------------'));
-            templatePaths.forEach(function (template) {
+            templatePaths.map(function (template, index) {
               return queue.add(function () {
-                return validateTemplate(template, delay);
+                return validateTemplate(template, delay, index + 1, templatePaths.length);
               });
             });
             _context2.next = 16;
@@ -82,7 +83,7 @@ var validateTemplates = function () {
     }, _callee2, this, [[0, 12]]);
   }));
 
-  return function validateTemplates(_x3, _x4) {
+  return function validateTemplates(_x7, _x8) {
     return _ref2.apply(this, arguments);
   };
 }();
@@ -120,6 +121,7 @@ var getTemplates = function getTemplates(rootPath) {
         if (counter > 1000) {
           return reject(new Error('Lots of json and yml files found, is \'' + rootPath + '/*\' really the path you want to validate?'));
         } else if (/AWSTemplateFormatVersion/g.test(contents)) {
+          console.log(chalk.yellow(item.path.replace(new RegExp(rootPath, 'g'), ' └ ')));
           templates.push(item);
         }
       }
@@ -132,8 +134,10 @@ var getTemplates = function getTemplates(rootPath) {
 };
 
 var validate = function validate(templatePath, delay) {
+  var count = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+  var total = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
   return new Promise(function (resolve) {
-    console.log('Validate:', templatePath);
+    console.log('Validate [' + count + '/' + total + ']: ' + templatePath);
     return setTimeout(function () {
       return cloudFormation.validateTemplate({
         TemplateBody: fs.readFileSync(templatePath).toString()
@@ -147,6 +151,15 @@ var validate = function validate(templatePath, delay) {
       });
     }, delay);
   });
+};
+
+var printPercent = function printPercent(done, total) {
+  var number = done / total;
+  var bar = '████████████████████';
+  var count = Math.floor(number * bar.length);
+  var meter = '' + chalk.white(bar.substr(bar.length - count)) + chalk.gray(bar.substr(count));
+  console.log(meter, done + ' done out of ' + total);
+  // console.log('\x1Bc');
 };
 
 module.exports = {

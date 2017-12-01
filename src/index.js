@@ -30,6 +30,7 @@ const getTemplates = (rootPath) =>
           if (counter > 1000) {
             return reject(new Error(`Lots of json and yml files found, is '${rootPath}/*' really the path you want to validate?`))
           } else if ((/AWSTemplateFormatVersion/g).test(contents)){
+            console.log(chalk.yellow(item.path.replace(new RegExp(rootPath, 'g'), ' └ ')));
             templates.push(item);
           }
         }
@@ -40,9 +41,9 @@ const getTemplates = (rootPath) =>
         resolve({ templates }));
   });
 
-const validate = (templatePath, delay) =>
+const validate = (templatePath, delay, count = 1, total = 1) =>
   new Promise((resolve) => {
-      console.log('Validate:', templatePath);
+      console.log(`Validate [${count}/${total}]: ${templatePath}`);
       return setTimeout(() => cloudFormation.validateTemplate({
         TemplateBody: fs.readFileSync(templatePath).toString()
       }).promise()
@@ -57,29 +58,37 @@ const validate = (templatePath, delay) =>
         }), delay)
     });
 
-async function validateTemplate(templatePath, delay) {
+async function validateTemplate(templatePath, delay, count, total) {
   try {
-    await validate(templatePath, delay);
+    await validate(templatePath, delay, count, total);
   } catch (ex) {
     console.log(ex);
   }
 }
 
+const printPercent = (done, total) => {
+  const number = done / total;
+  const bar = '████████████████████';
+  const count = Math.floor(number * bar.length);
+  const meter = `${chalk.white(bar.substr(bar.length-count))}${chalk.gray(bar.substr(count))}`;
+  console.log(meter, `${done} done out of ${total}`);
+  // console.log('\x1Bc');
+};
+
 async function validateTemplates(rootPath, delay) {
   try {
+    console.log(chalk.yellow(`Scanning templates...\r\n${rootPath}`));
     const { templates } = await getTemplates(rootPath);
     const templatePaths = templates.map(template => template.path);
-    console.log(chalk.yellow(`Found ${templatePaths.length} template${templatePaths.length !== 1 ? 's' : ''}\r\n${rootPath}`));
-    console.log(chalk.yellow(templatePaths.join(',\n').replace(new RegExp(rootPath, 'g'), ' └ ')));
+    console.log(chalk.yellow(`Found ${templatePaths.length} template${templatePaths.length !== 1 ? 's' : ''}`));
     console.log(chalk.yellow('---------------------------'));
-    templatePaths.forEach(template =>
+    templatePaths.map((template, index) =>
       queue.add(() =>
-        validateTemplate(template, delay)));
+        validateTemplate(template, delay, index + 1, templatePaths.length)));
   } catch (exception) {
     console.log(chalk.red(`[ERROR] ${exception.message}`));
     process.exit(1);
   }
-
 }
 
 module.exports = {
